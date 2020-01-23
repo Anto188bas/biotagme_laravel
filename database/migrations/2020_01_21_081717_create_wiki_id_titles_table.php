@@ -14,10 +14,15 @@ class CreateWikiIdTitlesTable extends Migration
     public function up()
     {
         Schema::create('wiki_id_titles', function (Blueprint $table) {
+            // table's attributes
             $table->unsignedBigInteger('id');
             $table->string('title', 100)->charset('utf32')->collation('utf32_unicode_ci');
             $table->timestamps();
+
+            // primary key
             $table->primary('id');
+
+            // engine
             $table->engine = 'InnoDB';
         });
     }

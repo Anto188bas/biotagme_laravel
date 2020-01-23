@@ -30,4 +30,18 @@ class BiologyElement extends Model
         return $this->belongsToMany('App\WikiIdTitle', 'biology_element_wiki_id_title',
             'bioidx_id', 'wiki_id', 'idx', 'id');
     }
+
+    /**
+     *   The biology_elements table has a double OneToMany relationship with the networks one. For
+     *   this reason, we need to implement the method get_net_idx1s and get_net_idx2s in order to get
+     *   the networks records associated with the considered idx1 or idx2 value.
+     */
+     public function get_net_idx1s()
+     {
+         $this->hasMany('App\Network','idx1');
+     }
+     public function get_net_idx2s()
+     {
+         $this->hasMany('App\Network', 'idx2');
+     }
 }

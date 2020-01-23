@@ -19,16 +19,19 @@ class BiologyElementWikiIdTitle extends Migration
             $table->string('bioidx_id');
             $table->timestamps();
 
-            // NOTA: primary key da settare.....
+            // primary key da settare.....
+            $table->primary(['wiki_id','bioidx_id']);
 
             // foreign keys
             $table->foreign('wiki_id')
                ->references('id')
                ->on('wiki_id_titles')
+               ->onUpdate('cascade')
                ->onDelete('cascade');
             $table->foreign('bioidx_id')
                ->references('idx')
                ->on('biology_elements')
+               ->onUpdate('cascade')
                ->onDelete('cascade');
 
             // engine
