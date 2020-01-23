@@ -16,7 +16,7 @@ class BiologyElementWikiIdTitle extends Migration
         Schema::create('biology_element_wiki_id_title', function (Blueprint $table) {
             // table's attributes
             $table->unsignedBigInteger('wiki_id');
-            $table->string('bioidx_id');
+            $table->bigInteger('bioidx_id');
             $table->timestamps();
 
             // primary key da settare.....
