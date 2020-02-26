@@ -3,8 +3,16 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Providers\RouteServiceProvider;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use App\Network;
+use App\User;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
+use \Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use PhpParser\Node\Expr\Cast\Int_;
 
 class LoginController extends Controller
 {
@@ -19,22 +27,34 @@ class LoginController extends Controller
     |
     */
 
-    use AuthenticatesUsers;
+    /**
+     * Handle an authentication attempt.
+     *
+     * @param  Request $request
+     *
+     * @return JsonResponse
+     */
+    public function authenticate(Request $request){
+        $credentials = $request->only('email', 'password');
+
+        //if the credentials match with the date into the db, then a successfully response will be returned
+        if(Auth::once($credentials)){
+            $token = $this->newApiToken(Auth::id());
+            return response()->json(['success' => true, 'api_token' => $token], 200);
+        }
+        //otherwise a not-authorized response will be generated
+        return response()->json(['success' => false], 401);
+    }
 
     /**
-     * Where to redirect users after login.
+     * Create and update the authenticated user's API token.
      *
-     * @var string
+     * @param  int $ID
+     * @return string
      */
-    protected $redirectTo = RouteServiceProvider::HOME;
-
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->middleware('guest')->except('logout');
+    public function newApiToken(int $ID){
+        $token = Str::random(80);
+        User::setApiToken($ID, $token);        // we can manager with value return.. if 0 there was a problem..
+        return $token;
     }
 }

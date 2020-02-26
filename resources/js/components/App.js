@@ -3,7 +3,13 @@ import {Container, Col, Row, Table} from "reactstrap";
 import BioElemSearch from "./BioElemSearch";
 import ReactDOM from "react-dom";
 
+import "/home/vagrant/biotagme_laravel/public/css/material.css";
+import "/home/vagrant/biotagme_laravel/public/css/material1.css";
+import "/home/vagrant/biotagme_laravel/public/css/material3.css";
+
 export default class App extends React.Component {
+
+    path = {saveUrl: '/api/uploadCSV'};
 
     render() {
         return(

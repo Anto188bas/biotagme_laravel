@@ -11,6 +11,13 @@
 |
 */
 
+use Illuminate\Support\Facades\Route;
+
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::namespace('Auth')->group(
+    function () {
+        Route::post('/authentication', 'LoginController@authenticate');
 });
