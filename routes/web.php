@@ -21,3 +21,8 @@ Route::namespace('Auth')->group(
     function () {
         Route::post('/authentication', 'LoginController@authenticate');
 });
+
+Route::namespace('Network')->group(
+    function (){
+        Route::post('/searchElements', 'NetworksController@getNetworkElements');
+    });

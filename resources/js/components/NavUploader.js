@@ -3,16 +3,21 @@ import { TabContent, TabPane, Nav, NavItem, NavLink, Card, Button, CardTitle, Ca
 import classnames from 'classnames';
 import Login from "./Authentication";
 import Uploader from "./UploaderFile";
+import ImportDB from "./ImportTable";
 
 export default class NavUploader extends Component{
     constructor(props) {
         super(props);
         this.state = {
             activeTab: '1',
-            api_token: ''
+            api_token: '',
+            paths: []
         };
-        this.setToken = this.setToken.bind(this);
-        this.toggle   = this.toggle.bind(this)
+        this.setToken   = this.setToken.bind(this);
+        this.toggle     = this.toggle.bind(this);
+        this.addPath    = this.addPath.bind(this);
+        this.getPaths   = this.getPaths.bind(this);
+        this.resetPaths = this.resetPaths.bind(this);
     }
 
     // function used to update the api-token and show the uploader csv component
@@ -29,6 +34,21 @@ export default class NavUploader extends Component{
         if(this.state.activeTab !== tab)
             this.setState({activeTab: tab})
     };
+
+    getPaths = () => {
+        return this.state.paths;
+    };
+
+    resetPaths = () => {
+        this.setState({paths: []})
+    };
+
+    // function used add the paths of the uploaded files
+    addPath  = (path) => {
+        this.setState(prevState => ({
+                paths: [...prevState.paths, path]
+            })
+        )};
 
     render() {
         return(
@@ -48,6 +68,13 @@ export default class NavUploader extends Component{
                            Files Upload
                         </NavLink>
                     </NavItem>
+                    <NavItem>
+                        <NavLink
+                            className={classnames({ active: this.state.activeTab === '3' })}
+                        >
+                            Import
+                        </NavLink>
+                    </NavItem>
                 </Nav>
                 <TabContent activeTab={this.state.activeTab}>
                     <TabPane tabId="1">
@@ -63,7 +90,21 @@ export default class NavUploader extends Component{
                             <Col sm="12">
                                 <div>
                                     <br/>
-                                    <Uploader token={this.state.api_token}/>
+                                    <Uploader token={this.state.api_token} addPaths={this.addPath} changeTab={this.toggle}/>
+                                </div>
+                            </Col>
+                        </Row>
+                    </TabPane>
+                    <TabPane tabId="3">
+                        <Row>
+                            <Col sm="12">
+                                <div>
+                                    <br/>
+                                    <ImportDB token={this.state.api_token}
+                                              paths={this.getPaths}
+                                              changeTab={this.toggle}
+                                              resetPath={this.resetPaths}
+                                    />
                                 </div>
                             </Col>
                         </Row>

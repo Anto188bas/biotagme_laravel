@@ -21,4 +21,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::namespace('API')->group(
     function () {
         Route::post('uploadCSV', 'CSVuploaderController@store');
+        Route::post('importCSV', 'CSVimportController@import');
 });

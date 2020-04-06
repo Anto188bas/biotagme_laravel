@@ -3,62 +3,61 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\CSVimportJob;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class CSVimportController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Import table into mysql table.
      *
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return JsonResponse
      */
-    public function index()
+    public function import(Request $request)
     {
-        //
+        $path   = $request->get('path');
+        $this->insertIntoTable($path);
+
+        return response()->json([
+               'response' => "The system is processing the request.. you will receive a notification when the table has
+                              been imported"
+        ], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
 
     /**
-     * Display the specified resource.
+     * save data into the corresponding table.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param string $path
+     * @return void
      */
-    public function show($id)
-    {
-        //
-    }
+     private function insertIntoTable(string $path)
+     {
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
+         // get the name of the file
+         $components = explode("/",$path);
+         $nameFile   = end($components);
+         $nameLower  = strtolower($nameFile);
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
+         // 1. during this phase, the name of the table will be selected
+         if(strpos($nameLower, 'wikiid') !== false)
+         {
+             $category_tab = 1;
+         }
+         elseif (strpos($nameLower, 'indexing') !== false)
+         {
+             $category_tab = 2;
+         }
+         else
+         {
+             $category_tab = 3;
+         }
+
+         CSVimportJob::dispatch($path, $category_tab);
+     }
+
+    // CREARE FUNZIONE CHE DELETE IL CONTENUTO DELLE TABELLE.. GIA' IN ENV SONO STATE SPECIFICATE.. RICHIAMARE CON
+    // env(key)
 }

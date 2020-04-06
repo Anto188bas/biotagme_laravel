@@ -2,9 +2,11 @@ import React from 'react';
 import {Col, Container, Card, CardBody, Input, Popover, PopoverHeader, PopoverBody, Row, FormGroup, Button, Collapse} from 'reactstrap';
 import {Formik, Form, Field} from "formik";
 import * as Yup from 'yup';
-import { Link } from 'react-router-dom';
-import Uploader from "./UploaderFile";
 import NavUploader from "./NavUploader";
+import axios from "axios";
+
+Echo.channel('import')
+    .listen('.CSVimportEvent', ev => console.log(ev));
 
 function Checkbox(props) {
     return (
@@ -37,7 +39,6 @@ export default class BioElemSearch extends React.Component {
         };
         this.toggle = this.toggle.bind(this);
         this.newNavState = this.newNavState.bind(this);
-        //this.openNavNet = this.openNavNet.bind(this);
     }
 
     // function used to open or close the popup containing information about the name of the biology element.
@@ -59,7 +60,15 @@ export default class BioElemSearch extends React.Component {
                         initialValues={{bioElem:'', components:['gene','protein','enzyme','miRNA','LNC','drug','disease']}}
                         validationSchema={this.schema_validation}
                         onSubmit={values => {
-                            console.log(values.components);
+                            const this_cl = this;
+                            const names = values.bioElem.toString().split(",");
+                            axios.post('/searchElements', {
+                                names: names
+                            }).then(function (response){
+                                this_cl.props.nodes(response.data.response)
+                            }).catch(function (error) {
+                               console.log(error)
+                            })
                         }}
                     >
                         {({values, handleChange, errors}) => (

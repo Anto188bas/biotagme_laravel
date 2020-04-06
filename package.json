@@ -28,12 +28,17 @@
         "@syncfusion/ej2-react-inputs": "^17.4.47",
         "bootstrap": "^4.4.1",
         "classnames": "^2.2.6",
+        "cytoscape": "^3.14.0",
+        "cytoscape-euler": "^1.2.2",
         "formik": "^2.1.3",
         "jquery": "^3.4.1",
+        "laravel-echo": "^1.6.1",
         "propper": "^1.0.3",
         "react-bootstrap": "^1.0.0-beta.16",
+        "react-cytoscapejs": "^1.2.1",
         "react-router-dom": "^5.1.2",
         "reactstrap": "^8.4.1",
+        "socket.io-client": "^2.3.0",
         "yup": "^0.28.1"
     },
     "babel": {

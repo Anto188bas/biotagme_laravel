@@ -12,3 +12,7 @@
     background-color: lightgray;
     float: left;
 }
+
+.container1{
+    max-width: 100%;
+}

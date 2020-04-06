@@ -54,19 +54,13 @@ class CSVuploaderController extends Controller
      */
       protected function saveFile(UploadedFile $file){
           $fileName = $this->createFilename($file);
-
-          // Group file by the data
-          //$yearFolder  = date('Y');
-          //$monthFolder = date("m");
-          //$filePath    = "upload/{$yearFolder}/{$monthFolder}/";
-          //$finalPath   = storage_path()."app/public/{$filePath}";
           $finalPath   = storage_path()."app/public/upload/";
 
           // move the file
           $file->move($finalPath, $fileName);
-
           return response()->json([
-              'finished' => true
+              'finished' => true,
+              'path' => $finalPath.$fileName
           ], 200);
       }
 
@@ -80,8 +74,6 @@ class CSVuploaderController extends Controller
     {
         $today = date("Y-m-d_H:i:s");
         return implode([
-            //time(),
-            //mt_rand(100, 999),
             explode(".", $file->getFilename())[0],
             '-',
             $today,
