@@ -3,7 +3,6 @@ import { Card, Button, CardText, CardTitle} from 'reactstrap';
 import axios from 'axios';
 
 export default class ImportDB extends Component {
-
     constructor(props) {
         super(props);
     }
@@ -20,9 +19,8 @@ export default class ImportDB extends Component {
                     'Accept': 'application/json',
                 }
             }).then(response => {
+                // show message
                 console.log(response);
-                //this_cls.props.resetPath();
-                //this_cls.props.changeTab('2');
             }).catch(error => console.log(error))
         })
     };

@@ -1,5 +1,4 @@
 import React from 'react'
-
 import "/home/vagrant/biotagme_laravel/public/css/material.css";
 import "/home/vagrant/biotagme_laravel/public/css/material1.css";
 import "/home/vagrant/biotagme_laravel/public/css/material3.css";
@@ -48,10 +47,9 @@ export default class Uploader extends React.Component{
                 }
                 else {
                     if(el === 100)
-                        count ++;
+                        count++;
                     return el;
                 }
-            //idx === i ? percentage : el
         });
         this.setState( {value_list: new_list});
         if(count === this.state.value_list.length){
@@ -112,6 +110,7 @@ export default class Uploader extends React.Component{
                 console.log(err)
             })
     }
+
 
     render() {
         return (

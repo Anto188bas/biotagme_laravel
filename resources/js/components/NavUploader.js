@@ -24,9 +24,7 @@ export default class NavUploader extends Component{
     setToken = (new_token) => {
         this.setState({
             api_token: new_token
-        }, function () {
-            console.log(this.state.api_token)
-        });
+        })
     };
 
     // function used to change the tab
@@ -35,43 +33,44 @@ export default class NavUploader extends Component{
             this.setState({activeTab: tab})
     };
 
-    getPaths = () => {
-        return this.state.paths;
-    };
-
-    resetPaths = () => {
-        this.setState({paths: []})
-    };
-
-    // function used add the paths of the uploaded files
-    addPath  = (path) => {
+    // set of functions used to add, get and reset the uploaded files paths
+    getPaths   = () => {return this.state.paths};
+    resetPaths = () => {this.setState({paths: []})};
+    addPath    = (path) => {
         this.setState(prevState => ({
                 paths: [...prevState.paths, path]
             })
-        )};
+    )};
+
+    close_button = () =>{
+        if(this.state.activeTab === '3') {
+            this.resetPaths();
+            // add delete files operation
+            console.log(this.state.activeTab);
+            this.toggle('2');
+        }
+        this.props.closePop()
+    };
 
     render() {
         return(
             <div>
+                <button type="button" className="close" aria-label="Close" onClick={this.close_button}>
+                    <span aria-hidden="true">&times;</span>
+                </button>
                 <Nav tabs>
                     <NavItem>
-                        <NavLink
-                            className={classnames({ active: this.state.activeTab === '1' })}
-                        >
+                        <NavLink className={classnames({ active: this.state.activeTab === '1' })}>
                            Login
                         </NavLink>
                     </NavItem>
                     <NavItem>
-                        <NavLink
-                            className={classnames({ active: this.state.activeTab === '2' })}
-                        >
+                        <NavLink className={classnames({ active: this.state.activeTab === '2' })}>
                            Files Upload
                         </NavLink>
                     </NavItem>
                     <NavItem>
-                        <NavLink
-                            className={classnames({ active: this.state.activeTab === '3' })}
-                        >
+                        <NavLink className={classnames({ active: this.state.activeTab === '3' })}>
                             Import
                         </NavLink>
                     </NavItem>
@@ -100,11 +99,7 @@ export default class NavUploader extends Component{
                             <Col sm="12">
                                 <div>
                                     <br/>
-                                    <ImportDB token={this.state.api_token}
-                                              paths={this.getPaths}
-                                              changeTab={this.toggle}
-                                              resetPath={this.resetPaths}
-                                    />
+                                    <ImportDB token={this.state.api_token} paths={this.getPaths}/>
                                 </div>
                             </Col>
                         </Row>

@@ -1,5 +1,6 @@
 import React from 'react';
-import {Col, Container, Card, CardBody, Input, Popover, PopoverHeader, PopoverBody, Row, FormGroup, Button, Collapse} from 'reactstrap';
+import {Col, Container, Card, CardBody, Input, Popover, PopoverHeader,
+        PopoverBody, Row, FormGroup, Collapse, Spinner} from 'reactstrap';
 import {Formik, Form, Field} from "formik";
 import * as Yup from 'yup';
 import NavUploader from "./NavUploader";
@@ -21,7 +22,6 @@ function Checkbox(props) {
                             let cmp_ls = field.value;
                             cmp_ls.includes(props.value) ? cmp_ls = cmp_ls.filter(e => e !== props.value) : cmp_ls.push(props.value);
                             form.setFieldValue(props.name, cmp_ls);
-                            console.log(form.values.components);
                         }}
                     />{' '}{props.value}
                 </Col>
@@ -36,14 +36,17 @@ export default class BioElemSearch extends React.Component {
         this.state = {
             popoverOpen: false,
             navUploaderOpen: false,
+            spinnerRun:false
         };
-        this.toggle = this.toggle.bind(this);
+        this.toggle      = this.toggle.bind(this);
         this.newNavState = this.newNavState.bind(this);
+        this.newSpinSt   = this.newSpinSt.bind(this);
     }
 
     // function used to open or close the popup containing information about the name of the biology element.
-    toggle = () => {this.setState({popoverOpen: !this.state.popoverOpen,})};
+    toggle      = () => {this.setState({popoverOpen: !this.state.popoverOpen,})};
     newNavState = () => {this.setState({navUploaderOpen: !this.state.navUploaderOpen,})};
+    newSpinSt   = () => {this.setState({spinnerRun: !this.state.spinnerRun})};
 
    schema_validation = Yup.object().shape({
         bioElem: Yup.string()
@@ -52,22 +55,33 @@ export default class BioElemSearch extends React.Component {
             .min(1)
     });
 
-    render() {
+   render() {
         return (
             <Card className="card">
                 <CardBody className="card-body">
                     <Formik
-                        initialValues={{bioElem:'', components:['gene','protein','enzyme','miRNA','LNC','drug','disease']}}
+                        initialValues={
+                            {
+                                bioElem:'',
+                                components:['gene','protein','enzyme','miRNA','LNC','drug','disease'],
+                                top_n:'10'
+                            }
+                        }
                         validationSchema={this.schema_validation}
                         onSubmit={values => {
                             const this_cl = this;
-                            const names = values.bioElem.toString().split(",");
+                            this_cl.newSpinSt();
+                            console.log(values.components);
                             axios.post('/searchElements', {
-                                names: names
+                                names: values.bioElem.toString().split(","),
+                                top_n: values.top_n,
+                                elements: values.components
                             }).then(function (response){
-                                this_cl.props.nodes(response.data.response)
+                                this_cl.props.nodes(response.data.response);
+                                this_cl.newSpinSt()
                             }).catch(function (error) {
-                               console.log(error)
+                               console.log(error);   // da riportare sul componente
+                               this_cl.newSpinSt();
                             })
                         }}
                     >
@@ -111,20 +125,31 @@ export default class BioElemSearch extends React.Component {
                                             <Checkbox name="components" value="disease"/>
                                         </Row>
                                     </Container>
+                                    <br/>
+                                    <legend>Top n</legend>
+                                    <Input type="select" name="top_n" value={values.top_n} onChange={handleChange}>
+                                        {
+                                            Array.from(Array(5).keys()).map((v,idx) =>
+                                                <option key={idx}>{(v+1)*10}</option>
+                                         )}
+                                    </Input>
                                     {errors.components ? (
                                         <div><p className="text-danger">you have to select one element at least</p></div>
                                     ) : null}
                                 </FormGroup>
-                                <button type="submit" className="btn btn-primary" style={{float:'right'}}>Submit</button>
+                                {
+                                    this.state.spinnerRun ?
+                                        <Spinner color='primary' style={{float:'right'}}/> :
+                                        <button type="submit" className="btn btn-primary" style={{float:'right'}}>Submit</button>
+                                }
                             </Form>
                         )}
                     </Formik>
-                    <button type="button" className="btn btn-link" onClick={this.newNavState}>Net Upload</button>
+                    <button type="button" className="btn btn-link" onClick={this.newNavState}>Network Upload</button>
                     <Collapse isOpen={this.state.navUploaderOpen}>
-                       <Card>
+                       <Card className="mt-4">
                           <CardBody>
-                              <br/>
-                             <NavUploader/>
+                             <NavUploader closePop={this.newNavState}/>
                           </CardBody>
                         </Card>
                     </Collapse>

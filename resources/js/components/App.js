@@ -2,12 +2,13 @@ import React from "react";
 import {Container, Col, Row} from "reactstrap";
 import BioElemSearch from "./BioElemSearch";
 import ReactDOM from "react-dom";
-
+import {CytoNet} from "./CytoNet";
+import {Header} from "./Header";
 import "/home/vagrant/biotagme_laravel/public/css/material.css";
 import "/home/vagrant/biotagme_laravel/public/css/material1.css";
 import "/home/vagrant/biotagme_laravel/public/css/material3.css";
 import "/home/vagrant/biotagme_laravel/public/css/siderbar.css";
-import {CytoNet} from "./CytoNet";
+
 
 export default class App extends React.Component {
     constructor(props) {
@@ -24,22 +25,21 @@ export default class App extends React.Component {
 
     render() {
         return(
-            <Container className='container1'>
-                <Row>
-                    <Col/>
-                </Row>
-                <Row>
-                    <Col xs={12} sm={12} md={6} lg={4}>
-                        <BioElemSearch nodes={this.setNodes}/>
-                    </Col>
-                    <Col id='test' xs={12} sm={12} md={6} lg={8}>
-                        <CytoNet nodes={this.state.nodes} />
-                    </Col>
-                </Row>
-                    <Col/>
-                <Row/>
-            </Container>
-        );
+            <div className='app'>
+                <Header/>
+                <main>
+                     <Row className="h-100 mr-1 ml-1">
+                         <Col xs={12} sm={12} md={12} lg={5} xl={4} className='mt-3 mb-3'>
+                            <BioElemSearch nodes={this.setNodes}/>
+                         </Col>
+                         <Col id='cypher_box' xs={12} sm={12} md={12} lg={7} xl={8} className='cell-cypher mt-3 mb-3'>
+                             <CytoNet nodes={this.state.nodes}/>
+                         </Col>
+                     </Row>
+                </main>
+                <footer className='mt-auto py-3'>Copyright</footer>
+            </div>
+            );
     }
 }
 

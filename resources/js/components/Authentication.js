@@ -76,12 +76,8 @@ export default class Login extends React.Component
                               </div>
                            )}
                       )}
-                      {(this.state.authentication_error) ? (
-                          <div>
-                             <p>{this.state.error_message}</p>
-                          </div>) : null
-                      }
-                   <button type="submit" className="btn btn-primary">Submit</button>
+                      {(this.state.authentication_error) ? (<div><p>{this.state.error_message}</p></div>) : null }
+                   <button type="submit" className="btn btn-primary">Login</button>
                    </Form>
                 )}
                 </Formik>

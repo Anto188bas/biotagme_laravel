@@ -20,12 +20,15 @@ class NetworksController extends Controller
      */
     public function getNetworkElements(Request $request) {
         $names = $request->get('names');
+        $top_n = intval($request->get('top_n'));
+        $elements = $request->get('elements');
         // add a for that iterates over each name.
 
-        $components = BiologyElement::where('name', $names[0])->get();
+        $components = BiologyElement::where('name', $names[0])
+            ->whereIn('type', $elements)->get();
         for ($i=0; $i < count($components); $i++){
             $component = $components[$i];
-            $networks  = $this->top_n($component, 10);
+            $networks  = $this->top_n($component, $top_n);
             $component['subnetwork'] = $networks;
             //$component['wikipage'] = $this->getWikiList($networks);
             $component['linkedComps'] = $this->getLinkedComponents($networks);
