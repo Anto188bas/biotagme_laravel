@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
-import "/home/vagrant/biotagme_laravel/public/css/siderbar.css";
+import "../../../public/css/siderbar.css";
 
 export default class Sidebar extends Component{
     render() {

@@ -1,7 +1,7 @@
 import React from 'react'
-import "/home/vagrant/biotagme_laravel/public/css/material.css";
-import "/home/vagrant/biotagme_laravel/public/css/material1.css";
-import "/home/vagrant/biotagme_laravel/public/css/material3.css";
+import "../../../public/css/material.css";
+import "../../../public/css/material1.css";
+import "../../../public/css/material3.css";
 import {Container, Card, CardText, CardTitle, Progress} from "reactstrap";
 import axios from 'axios';
 

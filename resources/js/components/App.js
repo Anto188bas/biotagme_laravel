@@ -4,11 +4,10 @@ import BioElemSearch from "./BioElemSearch";
 import ReactDOM from "react-dom";
 import {CytoNet} from "./CytoNet";
 import {Header} from "./Header";
-import "/home/vagrant/biotagme_laravel/public/css/material.css";
-import "/home/vagrant/biotagme_laravel/public/css/material1.css";
-import "/home/vagrant/biotagme_laravel/public/css/material3.css";
-import "/home/vagrant/biotagme_laravel/public/css/siderbar.css";
-
+import "../../../public/css/material.css";
+import "../../../public/css/material1.css";
+import "../../../public/css/material3.css";
+import "../../../public/css/siderbar.css";
 
 export default class App extends React.Component {
     constructor(props) {
