@@ -48,3 +48,8 @@
 .navbar-light .navbar-brand {
     color:white;
 }
+
+.square {
+    height: 15px;
+    width:  15px;
+}

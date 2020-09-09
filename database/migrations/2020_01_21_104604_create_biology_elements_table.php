@@ -15,16 +15,16 @@ class CreateBiologyElementsTable extends Migration
     {
         Schema::create('biology_elements', function (Blueprint $table) {
             // table's attributes
-            $table->bigInteger('idx')->primary();
-            $table->string('name',100)->charset('utf32')->collation('utf32_unicode_ci');
-            $table->string("id_source",30);
-            $table->string('source',25);
+            $table->bigIncrements('id');
+            $table->string('idx',50);
+            $table->string('alias',100)->charset('utf32')->collation('utf32_unicode_ci');
             $table->string('type',25);
             $table->timestamps();
 
             // indexes
-            $table->index(['name','type'], 'name_type_idx');
-            $table->index(['type','name'], 'type_name_idx');
+            $table->index('idx','idx_index');
+            $table->index(['alias','type'], 'alias_type_idx');
+            $table->index(['type','alias'], 'type_alias_idx');
 
             // engine
             $table->engine = 'InnoDB';

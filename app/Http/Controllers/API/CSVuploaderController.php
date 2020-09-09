@@ -54,7 +54,7 @@ class CSVuploaderController extends Controller
      */
       protected function saveFile(UploadedFile $file){
           $fileName = $this->createFilename($file);
-          $finalPath   = storage_path()."app/public/upload/";
+          $finalPath   = storage_path()."/app/public/upload/";
 
           // move the file
           $file->move($finalPath, $fileName);

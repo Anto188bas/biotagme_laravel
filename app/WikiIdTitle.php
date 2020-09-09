@@ -24,23 +24,13 @@ class WikiIdTitle extends Model
      */
     public function biology_elements()
     {
-       return $this->belongsToMany('App\BiologyElement', 'biology_element_wiki_id_title',
-           'wiki_id', 'bioidx_id', 'id', 'idx');
+       return $this->belongsToMany(
+           'App\BiologyElement',
+           'biology_element_wiki_id_title',
+           'wiki_id',
+           'bioidx_id',
+           'id',
+           'idx'
+       );
     }
-
-    /**
-     *   The wiki_id_titles table has a double OneToMany relationship with the networks one. For this
-     *   reason, we need to implement the method get_net_wid1s and get_net_wid2s in order to get the
-     *   networks records associated with the considered wid1 or wid2.
-     */
-     public function get_net_wid1s()
-     {
-         return $this->hasMany('App\Network', 'wid1');
-     }
-
-     public function get_net_wid2s()
-     {
-         return $this->hasMany('App\Network', 'wid2');
-     }
-
 }

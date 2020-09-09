@@ -16,7 +16,7 @@ class BiologyElementWikiIdTitle extends Migration
         Schema::create('biology_element_wiki_id_title', function (Blueprint $table) {
             // table's attributes
             $table->unsignedBigInteger('wiki_id');
-            $table->bigInteger('bioidx_id');
+            $table->string('bioidx_id');
             $table->timestamps();
 
             // primary key da settare.....
@@ -27,12 +27,12 @@ class BiologyElementWikiIdTitle extends Migration
                ->references('id')
                ->on('wiki_id_titles')
                ->onUpdate('cascade')
-               ->onDelete('cascade');
+               ->onDelete('no action');
             $table->foreign('bioidx_id')
                ->references('idx')
                ->on('biology_elements')
                ->onUpdate('cascade')
-               ->onDelete('cascade');
+               ->onDelete('no action');
 
             // engine
             $table->engine = 'InnoDB';

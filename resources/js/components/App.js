@@ -1,9 +1,9 @@
-import React from "react";
+import React                 from "react";
 import {Container, Col, Row} from "reactstrap";
-import BioElemSearch from "./BioElemSearch";
-import ReactDOM from "react-dom";
-import {CytoNet} from "./CytoNet";
-import {Header} from "./Header";
+import BioElemSearch         from "./Sender/BioElemSearch";
+import ReactDOM              from "react-dom";
+import {CytoNet}             from "./CytoNet";
+import {Header}              from "./Header";
 import "../../../public/css/material.css";
 import "../../../public/css/material1.css";
 import "../../../public/css/material3.css";
@@ -12,15 +12,16 @@ import "../../../public/css/siderbar.css";
 export default class App extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            nodes: []
+        this.state = {edges: []};
+        this.colors     = {
+            "GENE"  : "navy",       "PROTEIN" : "orange",     "DISEASE" : "#1b5e20",
+            "miRNA" : "blue",       "LNC"     : "maroon",     "mRNA"    : "#757575",
+            "DRUG"  : "red",  "PATHWAY" : "purple"
         };
-        this.setNodes = this.setNodes.bind(this);
+        this.setEdges = this.setEdges.bind(this);
     }
 
-    setNodes = (n_list) => {
-        this.setState({nodes:n_list})
-    };
+    setEdges = (n_list) => {this.setState({edges:n_list})};
 
     render() {
         return(
@@ -29,10 +30,10 @@ export default class App extends React.Component {
                 <main>
                      <Row className="h-100 mr-1 ml-1">
                          <Col xs={12} sm={12} md={12} lg={5} xl={4} className='mt-3 mb-3'>
-                            <BioElemSearch nodes={this.setNodes}/>
+                            <BioElemSearch edges={this.setEdges} colors={this.colors}/>
                          </Col>
                          <Col id='cypher_box' xs={12} sm={12} md={12} lg={7} xl={8} className='cell-cypher mt-3 mb-3'>
-                             <CytoNet nodes={this.state.nodes}/>
+                             <CytoNet edges={this.state.edges} colors={this.colors}/>
                          </Col>
                      </Row>
                 </main>

@@ -7,15 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class BiologyElement extends Model
 {
     /**
-     *  The primary key is not auto-incrementing because the ids value will be imported
-     *  by the corresponding csv file. To guarantee this condition the $incrementing value
-     *  is set to false. Another thing to do is set the name of the primary key column to
-     *  "idx", otherwise the model will look for the id column.
-     */
-    public $incrementing  = false;
-    protected $primaryKey = 'idx';
-
-    /**
      *  The model's attributes are all massive assignable because the data will be upload
      *  from a csv file obtained by spark application.
      */
@@ -27,21 +18,34 @@ class BiologyElement extends Model
      */
     public function wiki_id_titles()
     {
-        return $this->belongsToMany('App\WikiIdTitle', 'biology_element_wiki_id_title',
-            'bioidx_id', 'wiki_id', 'idx', 'id');
+        return $this->belongsToMany(
+            'App\WikiIdTitle',
+            'biology_element_wiki_id_title',
+            'bioidx_id',
+            'wiki_id',
+            'idx',
+            'id'
+        );
     }
 
     /**
-     *   The biology_elements table has a double OneToMany relationship with the networks one. For
-     *   this reason, we need to implement the method get_net_idx1s and get_net_idx2s in order to get
-     *   the networks records associated with the considered idx1 or idx2 value.
+     *  formatted_wiki_id_titles returns a vector having BioTG_id as key and all the wiki_id-title as component of the
+     *  vector associated with the considered key
+     *
+     * @param  array $bio_ids
+     * @return array
      */
-     public function get_net_idx1s()
-     {
-         $this->hasMany('App\Network','idx1');
-     }
-     public function get_net_idx2s()
-     {
-         $this->hasMany('App\Network', 'idx2');
-     }
+    public static function formatted_wiki_id_titles($bio_ids){
+        $associations =  BiologyElement::whereIn('idx',array_keys($bio_ids))
+            ->select('idx')
+            ->with('wiki_id_titles:id,title')
+            ->get();
+
+        foreach ($associations as $association){
+            foreach($association['wiki_id_titles'] as $wiki_page)
+                $bio_ids[$association['idx']]['wiki_pages'][$wiki_page['id']] = $wiki_page['title'];
+        }
+
+        return $bio_ids;
+    }
 }

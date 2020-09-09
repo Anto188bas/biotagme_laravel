@@ -13,28 +13,29 @@ class CSVimportJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $filePath;
+    protected $filePaths;
     protected $tablesName;
     protected $tableParams;
-    protected $tableParamCursor;
 
     /**
      * Create a new job instance.
      *
-     * @param  string $filePath
-     * @param  int    $tableParamsCursor
+     * @param  array $filePaths
      * @return void
      */
-    public function __construct($filePath, $tableParamsCursor)
+    public function __construct($filePaths)
     {
-        $this->filePath    = $filePath;
-        $this->tablesName  = explode(',', env('DB_TABLES'));
-        $this->tableParamCursor = $tableParamsCursor;
-        $this->tableParams = array(
+        $this->filePaths         = $filePaths;
+        $this->tablesName        = array (
+            "wiki_id_titles",
+            "biology_elements",
+            "biology_element_wiki_id_title"
+        );
+        $this->tableParams       = array (
             "(id,title,@create_at,@update_at)",
-            "(name,id_source,source,type,@dummy,idx,@create_at,@update_at)",
-            "(@dummy,@dummy,@dummy,@dummy,wiki_id,bioidx_id,@create_at,@update_at)",
-            "(idx1,idx2,wid1,wid2,btg_score,str_score,@create_at,@update_at)");
+            "(idx,alias,type,@create_at,@update_at)",
+            "(bioidx_id,wiki_id,@create_at,@update_at)"
+        );
     }
 
     /**
@@ -44,35 +45,30 @@ class CSVimportJob implements ShouldQueue
      */
     public function handle()
     {
+        // drop all tables rows
+        DB::table($this->tablesName[2])->delete();
+        DB::table($this->tablesName[0])->delete();
+        DB::table($this->tablesName[1])->delete();
+
         // connection to mysql database
         $connection = DB::connection();
         $pdo        = $connection->getPdo();
 
-        // table selection
-        if($this->tableParamCursor == 1){
-            $tables     = array_slice($this->tablesName, 0, 1);
-            $parameters = array_slice($this->tableParams, 0, 1);
-        }
-        elseif ($this->tableParamCursor == 2){
-            $tables     = array_slice($this->tablesName, 1, 2);
-            $parameters = array_slice($this->tableParams, 1, 2);
-        }
-        else{
-            $tables     = array_slice($this->tablesName, -1, 1);
-            $parameters = array_slice($this->tableParams, -1, 1);
-        }
 
-        // insert
-        for ($i = 0; $i < sizeof($tables); $i++) {
-            $query = "LOAD DATA LOCAL INFILE '".$this->filePath."'
-                      INTO TABLE ".$tables[$i]."
+        for($i=0; $i<count($this->filePaths); $i++){
+            // insert
+            $query = "LOAD DATA LOCAL INFILE '".$this->filePaths[$i]."'
+                      INTO TABLE ".$this->tablesName[$i]."
                       FIELDS TERMINATED BY '\\t'
                       LINES TERMINATED BY '\\n'
                       IGNORE 1 ROWS ".
-                      $parameters[$i].
+                      $this->tableParams[$i].
                       " SET created_at=NOW(), updated_at=NOW()";
 
             $pdo->exec($query);
+
+            // delete file
+            unlink($this->filePaths[$i]);
         }
     }
 }

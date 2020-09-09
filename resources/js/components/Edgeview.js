@@ -1,75 +1,53 @@
 import React, {Component} from "react";
 import { Table, Card, CardBody, CardHeader, PaginationItem, PaginationLink, Pagination} from 'reactstrap';
+import {WikiPages} from "./WikiPages";
 
 export class Edgeview extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            total_net: [],
-            page:       0,
-            pageSize:   4
-        };
-        this.from = "";
-        this.to   = "";
-        this.uri  = 'http://en.wikipedia.org/?curid=';
+        this.state = {info_edge: null};
+        this.max_name_len = 20;
     }
 
+    truncated_name  = (name) => {
+        return name.length > this.max_name_len ? name.substring(0,this.max_name_len - 1) + "..": name
+    };
+
     renderTableData = () => {
-        const start =  this.state.pageSize * this.state.page;
-        const tmp   =  this.state.pageSize * (this.state.page + 1);
-        const stop  =  Math.min(this.state.total_net.length, tmp);
         return(
-            this.state.total_net.slice(start,stop).map((row, id) =>{
-                const {name1, name2, wid1, wid2, btg_score, str_score} = row;
-                return(
-                    <tr key={id}>
-                        <td scope="row"/>
-                        <td><a href={this.uri + wid1} target="_blank">{wid1}</a></td>
-                        <td><a href={this.uri + wid2} target="_blank">{wid2}</a></td>
-                        <td>{btg_score}</td>
-                        <td>{str_score}</td>
-                    </tr>
-                )
-            })
+            <tr>
+                <td scope="row"/>
+                <td>{this.truncated_name(this.state.info_edge['node1']['name'])}</td>
+                <td>{this.truncated_name(this.state.info_edge['node2']['name'])}</td>
+                <td>{this.state.info_edge['btg_score']}</td>
+                <td>{this.state.info_edge['str_score']}</td>
+            </tr>
         )
     };
 
     renderTableHeader = () => {
+        const header = Array("#", "Name 1", "Name 2", "BTG SCORE", "STR SCORE");
         return(
             <tr>
-                <th>#</th>
-                <th>Wiki id 1</th>
-                <th>Wiki id 2</th>
-                <th>Biotagme score</th>
-                <th>String score</th>
+                {header.map((val,idx) => <th key={idx}>{val}</th>)}
             </tr>
         )
     };
 
     updateNet = (update_net) => {
-        this.from = update_net[0];
-        this.to = update_net[1];
         this.setState({
-            total_net: update_net[2],
+            info_edge: update_net[0],
             page:0,
         });
     };
 
-    closePopper = () => {
-        document.getElementById('card-edge').style.visibility = 'hidden'
-    };
+    closePopper = () => {document.getElementById('card-edge').style.visibility = 'hidden'};
 
     render() {
-        const pages = Math.ceil(this.state.total_net.length / this.state.pageSize);
-        const paginationItems = Array(pages).fill('').map((i, index) =>(
-            <PaginationItem key={index} active={this.state.page === index}>
-                <PaginationLink tag="button" onClick={() => this.setState({page: index })}>{index + 1}</PaginationLink>
-            </PaginationItem>
-        ));
         return(
             <Card>
                 <CardHeader>
-                    Relationship from {this.from} to {this.to}
+                    Relationship
                     <button type="button" className="close" aria-label="Close" onClick={this.closePopper}>
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -80,30 +58,11 @@ export class Edgeview extends Component {
                             {this.renderTableHeader()}
                         </thead>
                         <tbody>
-                            {this.state.total_net.length > 0 ? this.renderTableData():null}
+                            {this.state.info_edge != null ? this.renderTableData():null}
                         </tbody>
                     </Table>
-                    <nav>
-                        <Pagination>
-                            <PaginationItem onClick={() => {
-                                if(this.state.page < (this.state.total_net.length/this.state.pageSize) - 1)
-                                    this.setState(prev => ({page: prev.page + 1}))}
-                            }>
-                                <PaginationLink next tag="button">
-                                    Next
-                                </PaginationLink>
-                            </PaginationItem>
-                            {paginationItems}
-                            <PaginationItem onClick={() => {
-                                if(this.state.page > 0)
-                                    this.setState(prev => ({page: prev.page -1}))}
-                            }>
-                                <PaginationLink>
-                                    Back
-                                </PaginationLink>
-                            </PaginationItem>
-                        </Pagination>
-                    </nav>
+                    <br/>
+                    <WikiPages info_edge={this.state.info_edge}/>
                 </CardBody>
             </Card>
         );
