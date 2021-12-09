@@ -11,15 +11,33 @@ let Cytoscape = require('cytoscape');
 export class CytoNet extends Component {
     constructor(props) {
         super(props);
-        this.edgesView  = React.createRef();
-        this.elements   = [];
-        this.total_net  = [];
-        this.count_node =  0;
-        this.total_node =  0;
+        this.edgesView    = React.createRef();
+        this.elements     = [];
+        this.total_net    = [];
+        this.count_node   =  0;
+        this.total_node   =  0;
+        this.hidden_nodes = new Map();
+        this.nodes4_tab   = [];
         this.getNetworkFromDB = this.getNetworkFromDB.bind(this)
     }
 
-    componentDidMount() {this.setUpListeners();}
+    componentDidMount  = () => {this.setUpListeners()};
+    componentDidUpdate = (prevProps, prevState, snapshot) => {this.props.set_nodes(this.nodes4_tab)};
+
+    remove_node = (id_node) => {
+        const nodes   = this.cy.nodes("[id = '"+ id_node +"']");
+        const this_cl = this;
+        nodes.forEach(function(ele){
+            this_cl.hidden_nodes.set(id_node, this_cl.cy.remove(ele));
+        });
+    };
+    add_node = (id_node) => {
+        this.cy.add(this.hidden_nodes.get(id_node));
+        this.hidden_nodes.delete(id_node)
+    };
+    manage_node    = (id_node, flag) => {flag ? this.remove_node(id_node): this.add_node(id_node)};
+    add_all_nodes  = () => {Array.from(this.hidden_nodes.keys()).map(v => this.add_node(v))};
+
 
     getScores_wikiInfo2SEdge = (edge) => {
         let info_edge = [];
@@ -32,30 +50,47 @@ export class CytoNet extends Component {
                     node1       :  this.total_net['nodes'][row['idx1']],
                     node2       :  this.total_net['nodes'][row['idx2']],
                     btg_score   :  row['btg_score'],
-                    str_score   :  row['str_score']
+                    str_score   :  row['str_score'],
+                    liter_evid  :  row['liter_evid'],
+                    pmids       :  row['pmids']
                 });
             }
         });
         return info_edge
     };
 
-
     build_edge = (type, edge) => {
+        let color = "";
+        switch(type) {
+            case 0:
+                color = "red";
+                break;
+            case 1:
+                color = "green";
+                break;
+            default:
+                color = "yellow";
+        }
         return {
             data: {
                 source            :   edge['idx1'],
                 target            :   edge['idx2'],
-                color             :   type === 0 ? 'red':'green',
+                color             :   color,
                 'outside-to-node' :   true
             }
         };
     };
 
     getNetworkFromDB    = () => {
-        this.count_node = 0;
-        this.total_node = 0;
-        this.total_net  = this.props.edges;
-        this.elements   = [];
+        if(this.cy !== undefined)
+           this.add_all_nodes();
+
+        this.count_node   = 0;
+        this.total_node   = 0;
+        this.total_net    = this.props.edges;
+        this.elements     = [];
+        this.nodes4_tab   = [];
+        this.hidden_nodes = new Map();
 
         if(this.total_net !== undefined && this.total_net.length !== 0){
             const nodes = this.total_net['nodes'];
@@ -70,6 +105,7 @@ export class CytoNet extends Component {
                             color  : this.props.colors[nodes[key]['type']],
                         }
                     });
+                    this.nodes4_tab.push({id: key, label:nodes[key]['name'], type:nodes[key]['type']})
                 }
             const all_edges = this.total_net['edges'];
             all_edges.forEach(edge => {
@@ -77,7 +113,9 @@ export class CytoNet extends Component {
                     this.elements.push(this.build_edge(0,edge));
                 if(edge['str_score'] !== 0)
                     this.elements.push(this.build_edge(1,edge));
-            })
+                if(edge['liter_evid'] !== 0)
+                    this.elements.push(this.build_edge(2,edge));
+            });
         }
     };
 
@@ -119,10 +157,10 @@ export class CytoNet extends Component {
                        style: {
                            'border-color'       : 'data(color)',
                            'background-color'   : 'data(color)',
-                           'border-width'       :  2,
+                           'border-width'       :  0.2,
                            'background-opacity' :  0.5,
-                           width                :  75,
-                           height               :  75,
+                           width                :  15,
+                           height               :  15,
                            label                : 'data(label)',
                        }
                    },
@@ -130,7 +168,7 @@ export class CytoNet extends Component {
                        selector: 'edge',
                        style: {
                            'line-color': 'data(color)',
-                           width       : 1.5
+                           width       : 0.25
                        }
                    }
                ]}
@@ -138,13 +176,9 @@ export class CytoNet extends Component {
                cy    = {
                    (cy) => {
                         this.cy = cy;
-                        cy.on('add', 'node', _evt => {
-                           this.count_node++;
-                           if(this.count_node === this.total_node) {
-                              cy.layout(layout).run();
-                              cy.fit();
-                           }
-                        })
+                        cy.add(this.elements);
+                        cy.layout(layout).run();
+                        cy.fit()
                }}
            />
         )

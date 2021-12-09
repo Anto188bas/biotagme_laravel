@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Network;
 
 use App\BiologyElement;
 use App\Http\Controllers\Controller;
+use App\WikiIDs_PMIDs;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -18,6 +19,7 @@ class NetworksController extends Controller
      * @return  JsonResponse
      */
     public function getNetworkElements(Request $request) {
+        Log::info($request);
         $names     =  $request->get('names');
         $types     =  $request->get('types');
         $elements  =  $request->get('elements');
@@ -57,7 +59,6 @@ class NetworksController extends Controller
         if($url != "" && $query != ""){
             $ch   = curl_init($url);
             $data =  array('statements' => [array('statement' => $query)]);
-
             $payload = json_encode($data);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
@@ -88,7 +89,7 @@ class NetworksController extends Controller
             case 1:
                 $elements4query = [];
                 foreach ($elements as $element)
-                    $elements4query[] ="'".$element."'";
+                    $elements4query[] ="'".strtoupper($element)."'";
 
                 $id_element    = BiologyElement::where([
                     ['type',  '=' , $types],
@@ -96,13 +97,26 @@ class NetworksController extends Controller
                 ])->get();
 
                 if(count($id_element) !=0 )
-                    $query = "MATCH (n1 {id:'".$id_element[0]['idx']."'})-[r1]->(n2)
+                    // used this query to get edges among the desired element and the other ones, and
+                    /*$query = "MATCH (n1 {id:'".$id_element[0]['idx']."'})-[r1]-(n2)
                         WHERE labels(n2)[0] IN [".implode(",",$elements4query)."]
-                        WITH n1,r1,n2 ORDER BY r1.btg_score DESC, r1.str_score DESC
+                        WITH n1,r1,n2 ORDER BY r1.btg_score DESC, r1.str_score DESC, r1.liter_evid DESC
                         WITH DISTINCT n1,n2 LIMIT ".$n."
                         WITH collect(n1) + collect(n2) as C
-                        MATCH (n3)-[r2]->(n4)
-                        WHERE n3 in C and n4 in C RETURN n3,labels(n3),r2,n4,labels(n4)";
+                        MATCH (n3)-[r2]-(n4)
+                        WHERE n3 in C and n4 in C RETURN n3,labels(n3),r2,n4,labels(n4)";*/
+                    $query = "MATCH (n1 {id:'".$id_element[0]['idx']."'})-[r1]-(n2)
+                        WHERE labels(n2)[0] IN [".implode(",",$elements4query)."]
+                        RETURN n1,labels(n1),r1,n2,labels(n2)
+                        ORDER BY r1.btg_score DESC, r1.str_score DESC, r1.liter_evid DESC
+                        LIMIT ".$n;
+                        /*
+                        LIMIT 70
+                        UNION ALL
+                        MATCH (n1 {id:'".$id_element[0]['idx']."'})-[r1]-(n2:MIRNA)
+                        RETURN n1,labels(n1),r1,n2,labels(n2)
+                        ORDER BY r1.liter_evid DESC, r1.btg_score DESC, r1.str_score DESC
+                        LIMIT 30"; */
                 break;
             case 2:
                 $names_expl = explode("\t", $names);
@@ -119,7 +133,6 @@ class NetworksController extends Controller
                 if(count($id1_id2[0]) != 0 && count($id1_id2[1]) != 0){
                     $query = "MATCH (n1 {id:'".$id1_id2[0][0]['idx']."'}), (n2 {id:'".$id1_id2[1][0]['idx']."'}),".
                              "p = shortestPath((n1)-[*..10]-(n2)) RETURN p";
-                    //hypertyrosinemia
                 }
         }
         return $query;
@@ -142,12 +155,7 @@ class NetworksController extends Controller
                          $network_data['nodes'][$node_id]['name'] = $row['row'][$v]['name'];
                          $network_data['nodes'][$node_id]['type'] = $row['row'][$v + 1][0];
                      }
-                     $network_data['edges'][] = [
-                         'idx1'      => $row['row'][0]['id'],
-                         'idx2'      => $row['row'][3]['id'],
-                         'btg_score' => $row['row'][2]['btg_score'],
-                         'str_score' => $row['row'][2]['str_score']
-                     ];
+                     $network_data['edges'][] = $this->edges_configuration($row['row'], $opt);
                  }
                  break;
              case 2:
@@ -161,21 +169,29 @@ class NetworksController extends Controller
                            $network_data['nodes'][$node_id]['name'] = $elems[$i]['name'];
                            $network_data['nodes'][$node_id]['type'] = $type;
                         }
-                        else{
-                            $network_data['edges'][] = [
-                                'idx1'      => $elems[$i - 1]['id'],
-                                'idx2'      => $elems[$i + 1]['id'],
-                                'btg_score' => $elems[$i]['btg_score'],
-                                'str_score' => $elems[$i]['str_score']
-                            ];
-                        }
+                        else
+                           $network_data['edges'][] = $this->edges_configuration($elems, $opt, $i);
                     }
                 }
                 break;
          }
-         if(count($network_data) !== 0)
+         if(count($network_data) !== 0){
             $network_data['nodes'] = BiologyElement::formatted_wiki_id_titles($network_data['nodes']);
+            $network_data          = WikiIDs_PMIDs::pmid_associations($network_data);
+         }
 
          return $network_data;
+     }
+
+
+     private function edges_configuration($elems, $opt, $i=-1) {
+         $idx = $opt == 2 ? [$i-1, $i+1, $i] : [0, 3, 2];
+         return [
+             'idx1'       => $elems[$idx[0]]['id'],
+             'idx2'       => $elems[$idx[1]]['id'],
+             'btg_score'  => $elems[$idx[2]]['btg_score'],
+             'str_score'  => $elems[$idx[2]]['str_score'],
+             'liter_evid' => $elems[$idx[2]]['liter_evid']
+         ];
      }
 }

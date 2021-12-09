@@ -7,7 +7,6 @@ export class TopN extends React.Component {
     }
 
     render() {
-        console.log(this.props.max_opt)
         return(
             <React.Fragment>
                 <legend>Top n</legend>

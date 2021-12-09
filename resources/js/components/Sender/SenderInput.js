@@ -5,7 +5,7 @@ import {Error} from "../Error/Error";
 export class SenderInput extends React.Component {
     constructor(props) {
         super(props);
-        this.components  = Array('GENE','PROTEIN','DISEASE','miRNA','LNC','mRNA','DRUG', 'PATHWAY');
+        this.components  = Array('GENE','PROTEIN','DISEASE','miRNA','LNC','mRNA','DRUG', 'PATHWAY', "ENZYME");
     }
 
     render() {

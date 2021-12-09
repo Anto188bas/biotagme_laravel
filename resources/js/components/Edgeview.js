@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import { Table, Card, CardBody, CardHeader, PaginationItem, PaginationLink, Pagination} from 'reactstrap';
-import {WikiPages} from "./WikiPages";
+import {WikiPages} from "./Wikipedia/WikiPages";
 
 export class Edgeview extends Component {
     constructor(props) {
@@ -21,12 +21,13 @@ export class Edgeview extends Component {
                 <td>{this.truncated_name(this.state.info_edge['node2']['name'])}</td>
                 <td>{this.state.info_edge['btg_score']}</td>
                 <td>{this.state.info_edge['str_score']}</td>
+                <td>{this.state.info_edge['liter_evid']}</td>
             </tr>
         )
     };
 
     renderTableHeader = () => {
-        const header = Array("#", "Name 1", "Name 2", "BTG SCORE", "STR SCORE");
+        const header = Array("#", "NAME 1", "NAME 2", "BTG SCORE", "STR SCORE", "LITERATURE EVIDENCE");
         return(
             <tr>
                 {header.map((val,idx) => <th key={idx}>{val}</th>)}

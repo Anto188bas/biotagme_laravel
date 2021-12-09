@@ -8,6 +8,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CSVimportJob implements ShouldQueue
 {
@@ -29,12 +30,14 @@ class CSVimportJob implements ShouldQueue
         $this->tablesName        = array (
             "wiki_id_titles",
             "biology_elements",
-            "biology_element_wiki_id_title"
+            "biology_element_wiki_id_title",
+            "wiki_ids_pmids"
         );
         $this->tableParams       = array (
             "(id,title,@create_at,@update_at)",
             "(idx,alias,type,@create_at,@update_at)",
-            "(bioidx_id,wiki_id,@create_at,@update_at)"
+            "(bioidx_id,wiki_id,@create_at,@update_at)",
+            "(pmid,wiki1,wiki2,@create_at,@update_at)"
         );
     }
 
@@ -46,23 +49,28 @@ class CSVimportJob implements ShouldQueue
     public function handle()
     {
         // drop all tables rows
-        DB::table($this->tablesName[2])->delete();
-        DB::table($this->tablesName[0])->delete();
-        DB::table($this->tablesName[1])->delete();
+        if(count($this->filePaths) > 1) {
+            DB::table($this->tablesName[2])->delete();
+            DB::table($this->tablesName[0])->delete();
+            DB::table($this->tablesName[1])->delete();
+        }
+        else
+            DB::table($this->tablesName[3])->delete();
 
         // connection to mysql database
         $connection = DB::connection();
         $pdo        = $connection->getPdo();
 
 
-        for($i=0; $i<count($this->filePaths); $i++){
+        for($i=0; $i < count($this->filePaths); $i++){
             // insert
-            $query = "LOAD DATA LOCAL INFILE '".$this->filePaths[$i]."'
-                      INTO TABLE ".$this->tablesName[$i]."
+            $idx_vet = count($this->filePaths) == 1 ? 3 : $i;
+            $query   = "LOAD DATA LOCAL INFILE '".$this->filePaths[$i]."'
+                      INTO TABLE ".$this->tablesName[$idx_vet]."
                       FIELDS TERMINATED BY '\\t'
                       LINES TERMINATED BY '\\n'
                       IGNORE 1 ROWS ".
-                      $this->tableParams[$i].
+                      $this->tableParams[$idx_vet].
                       " SET created_at=NOW(), updated_at=NOW()";
 
             $pdo->exec($query);

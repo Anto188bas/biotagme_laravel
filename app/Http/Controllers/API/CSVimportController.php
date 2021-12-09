@@ -8,6 +8,7 @@ use App\Jobs\ProcessNeoImport;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 
 class CSVimportController extends Controller
@@ -23,11 +24,10 @@ class CSVimportController extends Controller
         $mysql_paths = explode(",", $request->get('mysql_paths'));
         $neo4j_paths = explode(",", $request->get('neo4j_paths'));
 
-
-        if(sizeof($mysql_paths) > 1)
+        if(count($mysql_paths) > 0 && $mysql_paths[0] != "")
             $this->insertIntoMYSQL($mysql_paths);
 
-        if(sizeof($neo4j_paths) > 1)
+        if(count($neo4j_paths) > 0 && $neo4j_paths[0] != "")
             $this->insertIntoNeo4j($neo4j_paths);
 
 
@@ -52,8 +52,9 @@ class CSVimportController extends Controller
              $nameLower    =  strtolower($nameFile);
 
              $category_tab = 2;
-             if     (strpos($nameLower, 'titles')  !== false)  $category_tab = 0;
+             if     (strpos($nameLower, 'titles' ) !== false)  $category_tab = 0;
              elseif (strpos($nameLower, 'aliases') !== false)  $category_tab = 1;
+             elseif (strpos($nameLower, 'pmid'   ) !== false)  $category_tab = 0;
 
              $ordered_file[$category_tab] = $path;
          }
