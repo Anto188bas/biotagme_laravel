@@ -19,10 +19,10 @@ Route::get('/', function () {
 
 Route::namespace('Auth')->group(
     function () {
-        Route::post('/authentication', 'LoginController@authenticate');
+        Route::post('/searching/authentication', 'LoginController@authenticate');
 });
 
 Route::namespace('Network')->group(
     function (){
-        Route::post('/searchElements', 'NetworksController@getNetworkElements');
+        Route::post('/searching/searchElements', 'NetworksController@getNetworkElements');
     });

@@ -14,7 +14,7 @@ export class SenderInput extends React.Component {
             {
                 this.props.opt !== '3' ?
                     <React.Fragment>
-                        <legend>Biological element name</legend>
+                        <h5 className="my_label_color">Biological element name</h5>
                         {Array.from(Array(parseInt(this.props.opt)).keys()).map(idx =>
                             <React.Fragment key={idx}>
                                 <Row>

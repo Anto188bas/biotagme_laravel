@@ -38,7 +38,7 @@ export default class Login extends React.Component
     // implementation o the handleForm function
     handleForm = (values) => {
         const self = this;
-        axios.post('/authentication', {
+        axios.post('/searching/authentication', {
             email: values.email,
             password: values.password
         }).then(function (response) {

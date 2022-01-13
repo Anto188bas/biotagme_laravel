@@ -47,7 +47,7 @@ export default class ImportDB extends Component {
         let params = new FormData();
         params.append('mysql_paths', mysql_files);
         params.append('neo4j_paths', neo4j_files);
-        axios.post("/api/importCSV", params, {
+        axios.post("/searching/api/importCSV", params, {
             'headers': {
                 'Authorization': 'Bearer ' + this_cls.props.token,
                 'Accept': 'application/json',

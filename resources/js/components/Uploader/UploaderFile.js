@@ -137,7 +137,7 @@ export default class Uploader extends React.Component{
         params.append('file',   file.slice(start, end), file.name);
 
         await wait(350);
-        axios.post("/api/uploadCSV", params, {
+        axios.post("/searching/api/uploadCSV", params, {
              'headers':
                  {
                     'Authorization'  :   'Bearer ' + this_class.props.token,

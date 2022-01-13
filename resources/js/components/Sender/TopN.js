@@ -9,7 +9,7 @@ export class TopN extends React.Component {
     render() {
         return(
             <React.Fragment>
-                <legend>Top n</legend>
+                <h5 className="my_label_color">Top n</h5>
                 <Input
                     type     = "select"
                     name     = "top_n"

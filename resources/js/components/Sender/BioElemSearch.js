@@ -3,7 +3,7 @@ import React                  from 'react';
 import * as classnames        from "classnames";
 import NavUploader            from "../Uploader/NavUploader";
 import {Echo_or_Shortest}     from "./EchoNet_or_shortestPth";
-import {ResultsManager} from "./ResultsManager";
+import {ResultsManager}       from "./ResultsManager";
 
 
 export default class BioElemSearch extends React.Component {
@@ -79,7 +79,7 @@ export default class BioElemSearch extends React.Component {
                                          state_node   = {this.props.state_node}
                                          ref          = {this.manager_ref}
                                      />
-                            </TabPane>
+                                </TabPane>
                     </TabContent>
                     {this.state.activeTab !== '3' ?
                         <React.Fragment>

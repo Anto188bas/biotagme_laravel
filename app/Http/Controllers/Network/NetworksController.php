@@ -18,7 +18,8 @@ class NetworksController extends Controller
      * @param   Request $request
      * @return  JsonResponse
      */
-    public function getNetworkElements(Request $request) {
+    public function getNetworkElements(Request $request): JsonResponse
+    {
         Log::info($request);
         $names     =  $request->get('names');
         $types     =  $request->get('types');
@@ -42,14 +43,15 @@ class NetworksController extends Controller
      * neo4j_curl_connector sends a HTTP request to Neo4j server so that the echo network of a selected node
      * is returned.
      *
-     * @param  string $names
-     * @param  string $types
-     * @param  array  $elements
-     * @param  int    $n
-     * @param  int    $opt
+     * @param string $names
+     * @param string $types
+     * @param array $elements
+     * @param int $n
+     * @param int $opt
      * @return array
      */
-    private function neo4j_curl_connector($names, $types, $elements, $n, $opt) {
+    private function neo4j_curl_connector(string $names, string $types, array $elements, int $n, int $opt): array
+    {
         $url   = env("NEO_URL", "");
         $query = $this->query_builder($names, $types, $elements, $n, $opt);
 
@@ -83,7 +85,8 @@ class NetworksController extends Controller
      * @param  int     $opt
      * @return string
      */
-    private function query_builder($names, $types, $elements, $n, $opt){
+    private function query_builder($names, $types, $elements, $n, $opt): string
+    {
         $query = "";
         switch ($opt) {
             case 1:
@@ -108,7 +111,7 @@ class NetworksController extends Controller
                     $query = "MATCH (n1 {id:'".$id_element[0]['idx']."'})-[r1]-(n2)
                         WHERE labels(n2)[0] IN [".implode(",",$elements4query)."]
                         RETURN n1,labels(n1),r1,n2,labels(n2)
-                        ORDER BY r1.btg_score DESC, r1.str_score DESC, r1.liter_evid DESC
+                        ORDER BY r1.liter_evid DESC, r1.btg_score DESC, r1.str_score DESC
                         LIMIT ".$n;
                         /*
                         LIMIT 70

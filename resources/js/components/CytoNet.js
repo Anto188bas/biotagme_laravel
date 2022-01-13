@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
-import popper     from 'cytoscape-popper';
-import ReactDOM   from "react-dom";
-import {Edgeview} from "./Edgeview";
+import popper             from 'cytoscape-popper';
+import ReactDOM           from "react-dom";
+import {Edgeview}         from "./Edgeview";
+
 
 let Cytoscape = require('cytoscape');
     Cytoscape.use( popper );
@@ -100,7 +101,8 @@ export class CytoNet extends Component {
                     this.elements.push({
                         data: {
                             id     : key,
-                            label  : nodes[key]['name'],
+                            label  : nodes[key]['name'].length >=8 ? nodes[key]['name'].substring(0,8) +  "..." : nodes[key]['name'],
+                            name   : nodes[key]['name'],
                             type   : nodes[key]['type'],
                             color  : this.props.colors[nodes[key]['type']],
                         }
@@ -121,10 +123,17 @@ export class CytoNet extends Component {
 
 
     setUpListeners = () => {
+        // edge popper configuration
         let div = document.createElement('div');
         div.setAttribute('id', 'card-edge');
         ReactDOM.render(<Edgeview ref={this.edgesView}/>, div);
 
+        // node popper configuration
+        let node_content = document.createElement('div');
+        document.body.appendChild(node_content);
+        node_content.style.visibility = 'hidden';
+
+        // edge table managing
         this.cy.on('click', (event) => {
             if(event.target === this.cy)
                div.style.visibility = 'hidden';
@@ -141,6 +150,24 @@ export class CytoNet extends Component {
                 });
             }
         });
+
+        // node name extension
+        const cy_elem = this.cy;
+        cy_elem.on('mouseover', 'node', function(evt){
+            const data_node = evt.target._private.data;
+            let popper      = cy_elem.nodes("[id = '"+ data_node.id +"']").popper({
+                content: () => {
+                    node_content.innerHTML = data_node.name;
+                    node_content.style.visibility = 'visible';
+                    return node_content
+                }
+            })
+        })
+
+        // node name compression
+        cy_elem.on('mouseout', 'node', function(evt){
+            node_content.style.visibility = 'hidden';
+        })
     };
 
 
@@ -159,6 +186,7 @@ export class CytoNet extends Component {
                            'background-color'   : 'data(color)',
                            'border-width'       :  0.2,
                            'background-opacity' :  0.5,
+                           'font-size'          :  3,
                            width                :  15,
                            height               :  15,
                            label                : 'data(label)',

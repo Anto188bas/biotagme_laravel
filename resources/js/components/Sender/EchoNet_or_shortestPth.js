@@ -60,7 +60,8 @@ export class Echo_or_Shortest extends React.Component {
                 onSubmit={ values => {
                     const this_cl = this;
                     this_cl.newSpinSt();
-                    axios.post('/searchElements', {
+                    console.log(values.components);
+                    axios.post('/searching/searchElements', {
                         names    : values.bioElem1.toString() + (values.nav_tab === '2' ? "\t" + values.bioElem2 : ""),
                         top_n    : values.top_n,
                         elements : values.components,
@@ -93,12 +94,13 @@ export class Echo_or_Shortest extends React.Component {
                                 values      = {opt}
                                 colors      = {this.props.nodes_colors}
                                 colors_edge = {this.props.colors_edges}
+                                tmp         = {values}
                             />
                             {errors.components ?
                                 <Error message={"you have to select one element at least"}/> : null
                             }
                             {opt === '1' ?
-                                <TopN values={values} handler={handleChange} max_opt={20}/>  : null
+                                <div className={"mt-4"}><TopN values={values} handler={handleChange} max_opt={20}/></div> : null
                             }
                         </FormGroup>
                         {
